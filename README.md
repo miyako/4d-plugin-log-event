@@ -16,6 +16,8 @@ This plugin provides a way to work around that problem.
 
 It also allows the developer to use their own message DLL.
 
+![jp-message](https://cloud.githubusercontent.com/assets/1725068/12970972/71f68f4a-d0d8-11e5-9894-1c4018da03b1.png)
+
 How to create a custom message DLL
 ---
 
