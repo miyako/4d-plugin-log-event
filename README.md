@@ -59,3 +59,55 @@ Create also a 64 bit version.
 ```
 link -dll -noentry /machine:x64 4dmsg-clone.res
 ```
+
+How to use the plugin
+---
+
+If you simply want to mimic the native command
+
+```
+  //using native command; the category is #0 and the event-is is #8
+LOG EVENT(Into Windows log events;"some message";Information message)
+```
+
+Do this:
+
+```
+$category:=0
+$event:=5  //%1
+ARRAY TEXT($params;1)
+$params{1}:="some message"
+LOG WRITE ENTRY (EVENTLOG_INFORMATION_TYPE;$category;$event;$params)
+```
+
+You can even mimic built-in 4D events (2,3,4)
+
+```
+$category:=0
+$event:=2  //the database %1 has been successfully started
+LOG WRITE ENTRY (EVENTLOG_INFORMATION_TYPE;$category;$event;$params)
+```
+
+By default, the source name is "4D Application" (constant:``EVENTLOG_DEFAULT_SOURCE``)
+
+```
+LOG GET SOURCE ($serverName;$souceName)
+```
+
+You can also attach binary data
+
+```
+  //these values with be inserted in the "%n" placeholders  in the message
+ARRAY TEXT($params;2)
+$params{1}:="arg1"
+$params{2}:="arg2"
+
+  //you can attach a binary to a message
+C_BLOB($data)
+
+$category:=0
+$event:=5  //%1
+LOG WRITE ENTRY (EVENTLOG_ERROR_TYPE;$category;$event;$params;$data)
+```
+
+![registry](https://cloud.githubusercontent.com/assets/1725068/12971009/1cea7466-d0d9-11e5-9c17-dbfbf5188c1f.png)
