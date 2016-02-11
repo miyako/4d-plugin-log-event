@@ -1,0 +1,1 @@
+﻿{"name":"Log Event","id":20000,"commands":[{"theme":"Log","syntax":"LOG WRITE ENTRY(&L;&L;&L;&Y;&O;&L)"},{"theme":"Log","syntax":"LOG REGISTER SOURCE(&T;&L;&T;&L)"},{"theme":"Log","syntax":"LOG SET SOURCE(&T;&T;&L)"},{"theme":"Log","syntax":"LOG GET SOURCE(&T;&T)"}]}
