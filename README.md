@@ -19,7 +19,7 @@ It also allows the developer to use their own message DLL.
 How to create a custom message DLL
 ---
 
-Create a message text file, as explain by [Microsoft](https://msdn.microsoft.com/en-us/library/dd996906(v=vs.85).aspx).
+Create a message text file, as explained by [Microsoft](https://msdn.microsoft.com/en-us/library/dd996906(v=vs.85).aspx).
 
 You must save the file in UTF-16LE encoding.
 
