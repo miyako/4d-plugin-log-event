@@ -54,6 +54,12 @@ Create a resouce-only DLL.
 link -dll -noentry /machine:x86 4dmsg-clone.res
 ```
 
+Create also a 64 bit version.
+
+```
+link -dll -noentry /machine:x64 4dmsg-clone.res
+```
+
 You can find a sample msg4d.dll clone with the project.
 
 ```
@@ -94,7 +100,7 @@ Language=Japanese
 %1!S!%0
 .
 
-; // Based on original 4dmsg.dll (no catagory)
+; // Based on original 4dmsg.dll (no category)
 
 MessageId=0x2
 SymbolicName=MSG_DATABASE_LOG_START
@@ -156,7 +162,7 @@ Language=Japanese
 %1!S!%0
 .
 
-; // The LOG EVENT COMMAND (no catagory)
+; // The LOG EVENT COMMAND (no category)
 
 MessageId=0x8
 SymbolicName=MSG_LOG_EVENT
@@ -178,12 +184,6 @@ Language=Japanese
 %1!S!%0
 .
 
-```
-
-Create also a 64 bit version.
-
-```
-link -dll -noentry /machine:x64 4dmsg-clone.res
 ```
 
 How to use the plugin
@@ -234,6 +234,33 @@ C_BLOB($data)
 $category:=0
 $event:=5  //%1
 LOG WRITE ENTRY (EVENTLOG_ERROR_TYPE;$category;$event;$params;$data)
+```
+
+To register and use a custom message DLL 
+
+```
+  //requires admin privileges
+$path:=Get 4D folder(Current resources folder)+"windows"+Folder separator+"4dmsg-clone.dll"
+$count_categories:=0
+LOG REGISTER SOURCE ("Custom 4D Application";$count_categories;$path;\
+EVENTLOG_WARNING_TYPE\
+ | EVENTLOG_ERROR_TYPE\
+ | EVENTLOG_INFORMATION_TYPE\
+ | EVENTLOG_AUDIT_FAILURE\
+ | EVENTLOG_AUDIT_SUCCESS)
+
+  //  //use this source
+LOG SET SOURCE ("";"Custom 4D Application")
+
+ARRAY TEXT($params;1)
+$params{1}:="日本語のメッセージ"
+
+  //you can attach a binary to a message
+C_BLOB($data)
+
+For ($event;1;9)
+LOG WRITE ENTRY (EVENTLOG_INFORMATION_TYPE;$category;$event;$params;$data)
+End for 
 ```
 
 ![registry](https://cloud.githubusercontent.com/assets/1725068/12971009/1cea7466-d0d9-11e5-9c17-dbfbf5188c1f.png)
