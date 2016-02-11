@@ -54,6 +54,132 @@ Create a resouce-only DLL.
 link -dll -noentry /machine:x86 4dmsg-clone.res
 ```
 
+You can find a sample msg4d.dll clone with the project.
+
+```
+; /* Sample Message Text File
+;  *
+;  * Message Text Files
+;  * https://msdn.microsoft.com/en-us/library/dd996906(v=vs.85).aspx
+;  * Reporting Events
+;  * https://msdn.microsoft.com/en-us/library/aa363680(v=vs.85).aspx
+;  */
+
+; // This is the header section.
+
+SeverityNames=(Success=0x0:STATUS_SEVERITY_SUCCESS
+  Informational=0x1:STATUS_SEVERITY_INFORMATIONAL
+  Warning=0x2:STATUS_SEVERITY_WARNING
+  Error=0x3:STATUS_SEVERITY_ERROR
+)
+
+FacilityNames=(System=0x0:FACILITY_SYSTEM
+  Runtime=0x2:FACILITY_RUNTIME
+)
+
+LanguageNames=(English=0x409:MSG00409)
+LanguageNames=(Japanese=0x411:MSG00411)
+
+; // The following are the message definitions.
+
+MessageIdTypedef=WORD
+
+MessageId=0x1
+SymbolicName=MSG_1
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+; // Based on original 4dmsg.dll (no catagory)
+
+MessageId=0x2
+SymbolicName=MSG_DATABASE_LOG_START
+Language=English
+The database %1!S! has been successfully started
+.
+
+Language=Japanese
+データベースの%1!S!を開始しました
+.
+
+MessageId=0x3
+SymbolicName=MSG_WEB_LOG_START
+Language=English
+The web server %1!S! has been successfully started
+.
+
+Language=Japanese
+Webサーバーの%1!S!を開始しました
+.
+
+MessageId=0x4
+SymbolicName=MSG_WEB_LOG_HALT
+Language=English
+The web server %1!S! has been halted
+.
+
+Language=Japanese
+Webサーバーの%1!S!を停止しました
+.
+
+MessageId=0x5
+SymbolicName=MSG_5
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+MessageId=0x6
+SymbolicName=MSG_6
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+MessageId=0x7
+SymbolicName=MSG_7
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+; // The LOG EVENT COMMAND (no catagory)
+
+MessageId=0x8
+SymbolicName=MSG_LOG_EVENT
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+MessageId=0x9
+SymbolicName=MSG_9
+Language=English
+%1!S!%0
+.
+
+Language=Japanese
+%1!S!%0
+.
+
+```
+
 Create also a 64 bit version.
 
 ```
