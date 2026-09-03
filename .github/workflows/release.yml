@@ -99,7 +99,6 @@ jobs:
             exit 1
           }
           Write-Host "Found Windows binary at: $($found.FullName)"
-          Copy-Item $found.FullName "$canonicalDir/$product.4DX" -Force
           $destPath = Join-Path (Resolve-Path $canonicalDir) "$product.4DX"
           if ($found.FullName -eq $destPath) {
             # NTFS is case-insensitive: the "lower-case" path msbuild wrote to
