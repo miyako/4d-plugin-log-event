@@ -9,6 +9,8 @@
  # --------------------------------------------------------------------------------*/
 
 
+#include <mutex>
+
 #include "4DPluginAPI.h"
 #include "4DPlugin.h"
 
@@ -16,6 +18,10 @@ namespace LOG
 {
 	CUTF16String serverName;
 	CUTF16String sourceName;
+	// Guards serverName / sourceName / hEventLog, which are read and written
+	// from LOG_SET_SOURCE, LOG_GET_SOURCE, LOG_WRITE_ENTRY, OnStartup and
+	// OnCloseProcess — any of which can run on different 4D processes/threads.
+	std::mutex g_stateMutex;
 #if VERSIONWIN
 	HANDLE hEventLog = NULL;
 	void setDWORD(HKEY hkey, LPCWSTR path, LPCWSTR key, C_LONGINT &v)
@@ -62,6 +68,7 @@ namespace LOG
 	
 		if (h)
 		{
+			std::lock_guard<std::mutex> lock(LOG::g_stateMutex);
 			if (LOG::hEventLog)
 			{
 				DeregisterEventSource(LOG::hEventLog);
@@ -88,7 +95,7 @@ bool IsProcessOnExit()
     PA_long32 state, time;
     PA_GetProcessInfo(PA_GetCurrentProcessNumber(), name, &state, &time);
     CUTF16String procName(name.getUTF16StringPtr());
-    CUTF16String exitProcName((PA_Unichar *)"$\0x\0x\0\0\0");
+    CUTF16String exitProcName((PA_Unichar *)u"$xx"); // was a hand-counted "$\0x\0x\0\0\0" byte literal; equivalent, compiler-checked
     return (!procName.compare(exitProcName));
 }
 
@@ -108,6 +115,7 @@ void OnCloseProcess()
 #if VERSIONWIN
 	if(IsProcessOnExit())
 	{
+		std::lock_guard<std::mutex> lock(LOG::g_stateMutex);
 		if (LOG::hEventLog)
 		{
 			DeregisterEventSource(LOG::hEventLog);
@@ -178,6 +186,7 @@ void LOG_WRITE_ENTRY(sLONG_PTR *pResult, PackagePtr pParams)
 	C_LONGINT EventID;
 	C_BLOB RawData;
 	C_LONGINT ErrorCode;
+	ErrorCode.setIntValue(0); // explicit: success path (and non-Windows builds) never touch this otherwise
 
 	Type.fromParamAtIndex(pParams, 1);
 	Category.fromParamAtIndex(pParams, 2);
@@ -186,6 +195,7 @@ void LOG_WRITE_ENTRY(sLONG_PTR *pResult, PackagePtr pParams)
 
 #if VERSIONWIN
 
+	std::lock_guard<std::mutex> lock(LOG::g_stateMutex);
 	if (LOG::hEventLog)
 	{
 		WORD wType = (WORD)Type.getIntValue();
@@ -253,6 +263,7 @@ void LOG_SET_SOURCE(sLONG_PTR *pResult, PackagePtr pParams)
 	C_TEXT ServerPath;
 	C_TEXT SourceName;
 	C_LONGINT ErrorCode;
+	ErrorCode.setIntValue(0); // explicit: only touched on Windows builds otherwise
 
 	ServerPath.fromParamAtIndex(pParams, 1);
 	SourceName.fromParamAtIndex(pParams, 2);
@@ -269,8 +280,11 @@ void LOG_GET_SOURCE(sLONG_PTR *pResult, PackagePtr pParams)
 	C_TEXT Param1;
 	C_TEXT Param2;
 
-	Param1.setUTF16String(&LOG::serverName);
-	Param2.setUTF16String(&LOG::sourceName);
+	{
+		std::lock_guard<std::mutex> lock(LOG::g_stateMutex);
+		Param1.setUTF16String(&LOG::serverName);
+		Param2.setUTF16String(&LOG::sourceName);
+	}
 
 	Param1.toParamAtIndex(pParams, 1);
 	Param2.toParamAtIndex(pParams, 2);
