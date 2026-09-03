@@ -100,6 +100,16 @@ jobs:
           }
           Write-Host "Found Windows binary at: $($found.FullName)"
           Copy-Item $found.FullName "$canonicalDir/$product.4DX" -Force
+          $destPath = Join-Path (Resolve-Path $canonicalDir) "$product.4DX"
+          if ($found.FullName -eq $destPath) {
+            # NTFS is case-insensitive: the "lower-case" path msbuild wrote to
+            # and the canonical-case path above are the same file on disk.
+            # Nothing to copy - PowerShell string comparison (-eq) is already
+            # case-insensitive, so this correctly matches despite differing casing.
+            Write-Host "Binary already at canonical location: $destPath"
+          } else {
+            Copy-Item $found.FullName $destPath -Force
+          }
           Get-ChildItem "$canonicalDir"
 
       - name: upload windows binaries
