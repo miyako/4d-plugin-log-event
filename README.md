@@ -69,6 +69,49 @@ Local lifecycle checks require Python 3 and PyYAML
 Run checks without native compilation, secrets or publication:
 `python3 -m unittest discover -s .github/tests -v` and `actionlint`.
 
+### Native ownership regression
+
+Run `python3 -m unittest discover -s .github/tests -p test_ownership.py -v`
+on macOS with Python 3.12 or newer. This compiles the actual plugin entry point, every bundled class
+implementation, and the complete unchanged SDK against a deny-by-default
+synthetic engine shim. Windows event/registry code is excluded before
+compilation and the executable is checked for forbidden logging imports.
+No real event log, registry, file-loading command, 4D host, signing or
+packaging is invoked. The scoped **Native ownership** workflow runs only this
+unsigned regression.
+
+The test compares final production sources with an immutable Git archive of
+`baa08dc02adcf753cfb4eaa3d795679c7d4f05d1`, including byte/mode preservation
+checks for all original files except this README and the corrected first-party
+`Classes/C_PICTURE.cpp`. Both native projects compile that helper even though
+the four logging commands do not call it. Its path argument now has one owner,
+retained picture outputs release their original owner, temporary picture
+references are balanced, and charset conversion bytes are divided by
+`sizeof(PA_Unichar)` before constructing a UTF-16 string. Borrowed picture
+arguments remain detached before clear; owning picture returns remain live.
+
+The bundled SDK C Git blob is
+`478081f0238f6bc5393222f574bc2656f010b67b`; header comments do not establish an
+upstream release identity. Tests use ASan/UBSan (excluding alignment for the
+SDK's packed ABI) and explicit string/handle/picture-reference counters because
+macOS LeakSanitizer is unavailable. Coverage includes ASCII, BMP,
+supplementary and empty text; allocated/null empty strings; scalar content
+setters; array index-zero transfers, rejection, borrowed copies, replacement,
+shrink and clear; picture handoff survival; poisoned failed picture-data
+outputs; and command handle failures with the SDK's raw-kind-zero sentinel.
+The baseline has 34 expected failures and 18 passing controls; all 52 fixed
+cases pass with zero tracked string allocations, picture references and handles.
+
+Limits: this is not Windows or real-4D certification. Successful SDK-only
+picture-data string ownership, application-path ownership and C_POINTER
+metadata are unresolved and unchanged. Initial string/array allocation failure
+at void wrapper/API boundaries has no established explicit error channel;
+caller-byte preservation and non-success publication are not certified.
+SDK array resize OOM can corrupt the count and is not certified by passing
+normal-array tests. Nonstring/CBytes allocation failures are outside this
+bounded fix. No SDK engine implementation, manifests, project files, existing
+manual workflows or bundled binaries are changed.
+
 ---
 
 ## LOG WRITE ENTRY
